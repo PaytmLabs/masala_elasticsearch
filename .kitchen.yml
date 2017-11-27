@@ -1,0 +1,117 @@
+---
+driver:
+  name: vagrant
+
+provisioner:
+  name: chef_zero
+  require_chef_omnibus: 12.10.24
+  environments_path: ./test/environments
+  data_bags_path: ./test/data_bags
+  client_rb:
+    environment: kitchen
+
+platforms:
+  - name: centos69
+    driver_config:
+      box: inviqa/centos-6-minimal
+    attributes:
+      system:
+        primary_interface: eth1
+  - name: centos72
+    driver_config:
+      box: boxcutter/centos72
+    attributes:
+      system:
+        primary_interface: eth1
+  - name: centos73
+    driver_config:
+      box: box-cutter/centos73
+    attributes:
+      system:
+        primary_interface: eth1
+  - name: centos74
+    driver_config:
+      box: geerlingguy/centos7
+    attributes:
+      system:
+        primary_interface: enp0s8
+  - name: ubuntu1404
+    driver_config:
+      box: boxcutter/ubuntu1404
+    attributes:
+      system:
+        primary_interface: eth1
+  - name: ubuntu1504
+    driver_config:
+      box: boxcutter/ubuntu1504
+    attributes:
+      system:
+        primary_interface: eth1
+  - name: debian82
+    driver_config:
+      box: boxcutter/debian82
+    attributes:
+      system:
+        primary_interface: eth1
+
+suites:
+  - name: es1
+    run_list:
+            - recipe[masala_elasticsearch::default]
+    driver:
+      network:
+      - ["private_network", {ip: "10.10.10.11"}]
+      customize:
+        memory: 1536
+        cpus: 1
+    attributes:
+      system:
+        short_hostname: 'es1'
+        static_hosts:
+          10.10.10.11: es1.kitchen.masalatest.com
+          10.10.10.12: es2.kitchen.masalatest.com
+          10.10.10.13: es3.kitchen.masalatest.com
+      masala_elasticsearch:
+        config:
+          discovery.zen.ping.unicast.hosts: ["10.10.10.11", "10.10.10.12", "10.10.10.13"]
+          path.data: '/esdata'
+  - name: es2
+    run_list:
+            - recipe[masala_elasticsearch::default]
+    driver:
+      network:
+      - ["private_network", {ip: "10.10.10.12"}]
+      customize:
+        memory: 1536
+        cpus: 1
+    attributes:
+      system:
+        short_hostname: 'es2'
+        static_hosts:
+          10.10.10.11: es1.kitchen.masalatest.com
+          10.10.10.12: es2.kitchen.masalatest.com
+          10.10.10.13: es3.kitchen.masalatest.com
+      masala_elasticsearch:
+        config:
+          discovery.zen.ping.unicast.hosts: ["10.10.10.11", "10.10.10.12", "10.10.10.13"]
+          path.data: '/esdata'
+  - name: es3
+    run_list:
+            - recipe[masala_elasticsearch::default]
+    driver:
+      network:
+      - ["private_network", {ip: "10.10.10.13"}]
+      customize:
+        memory: 1536
+        cpus: 1
+    attributes:
+      system:
+        short_hostname: 'es3'
+        static_hosts:
+          10.10.10.11: es1.kitchen.masalatest.com
+          10.10.10.12: es2.kitchen.masalatest.com
+          10.10.10.13: es3.kitchen.masalatest.com
+      masala_elasticsearch:
+        config:
+          discovery.zen.ping.unicast.hosts: ["10.10.10.11", "10.10.10.12", "10.10.10.13"]
+          path.data: '/esdata'
